@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace NamespaceFixer.NamespaceBuilder
 {
-    internal abstract class NamespaceBuilderService : INamespaceBuilder
+    public abstract class NamespaceBuilderService : INamespaceBuilder
     {
         private readonly INamespaceAdjusterOptions _options;
 
@@ -15,7 +15,7 @@ namespace NamespaceFixer.NamespaceBuilder
 
         protected abstract string NamespaceEndLimiter { get; }
 
-        public NamespaceBuilderService(INamespaceAdjusterOptions options)
+        protected NamespaceBuilderService(INamespaceAdjusterOptions options)
         {
             _options = options;
         }
@@ -38,6 +38,13 @@ namespace NamespaceFixer.NamespaceBuilder
                 projectToSolutionPhysicalPath,
                 projectToSolutionVirtualPath,
                 fileToProjectPath);
+
+            result = ToValidFormat(result);
+
+            foreach (var folder in _options.FoldersToIgnore.Split(';'))
+            {
+                result = Regex.Replace(result, $@"(^|\.){folder}(\.|$)", ".", RegexOptions.IgnoreCase);
+            }
 
             return ToValidFormat(result);
         }
@@ -65,8 +72,7 @@ namespace NamespaceFixer.NamespaceBuilder
         {
             var isCrlf = fileContent.IndexOf("\r\n") > -1;
 
-            if (isCrlf) NewLine = "\r\n";
-            else NewLine = "\n";
+            NewLine = isCrlf ? "\r\n" : "\n";
         }
 
         internal INamespaceAdjusterOptions GetOptions()
@@ -96,10 +102,10 @@ namespace NamespaceFixer.NamespaceBuilder
                 return string.Empty;
 
             var projectAndSolutionFilesAreSameDirectory = projectDirectoryFullName.Equals(solutionDirectoryFullName);
-            if (projectAndSolutionFilesAreSameDirectory)
-                return string.Empty;
 
-            return projectDirectoryFullName.Substring(solutionDirectoryFullName.Length + 1);
+            return projectAndSolutionFilesAreSameDirectory
+                ? string.Empty
+                : projectDirectoryFullName.Substring(solutionDirectoryFullName.Length + 1);
         }
 
         private string ToValidFormat(string name)
@@ -132,8 +138,10 @@ namespace NamespaceFixer.NamespaceBuilder
 
         private XmlReader BuildXmlProjectFileReader(FileInfo projectFile)
         {
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.DtdProcessing = DtdProcessing.Parse;
+            XmlReaderSettings settings = new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Parse
+            };
             return XmlReader.Create(projectFile.FullName, settings);
         }
 
@@ -141,7 +149,7 @@ namespace NamespaceFixer.NamespaceBuilder
         {
             var fileRequiresUpdate = false;
 
-            var namespaceGroup = namespaceMatch.Groups.OfType<Group>().Where(g => !(g is Match)).FirstOrDefault();
+            var namespaceGroup = namespaceMatch.Groups.OfType<Group>().FirstOrDefault(g => !(g is Match));
 
             if (namespaceGroup == null) return false;
 
@@ -173,8 +181,8 @@ namespace NamespaceFixer.NamespaceBuilder
             fileContent =
                 (string.IsNullOrEmpty(usingSectionContent) ? string.Empty : usingSectionContent + NewLine + NewLine) +
                 BuildNamespaceLine(desiredNamespace) + NewLine +
-                NamespaceStartLimiter + 
-                fileContent.Trim() + 
+                NamespaceStartLimiter +
+                fileContent.Trim() +
                 NewLine + NamespaceEndLimiter;
 
             return true;

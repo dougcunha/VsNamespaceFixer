@@ -3,7 +3,7 @@ using System;
 
 namespace NamespaceFixer.NamespaceBuilder
 {
-    internal class NamespaceBuilderFactory
+    internal static class NamespaceBuilderFactory
     {
         internal static INamespaceBuilder CreateNamespaceBuilderService(string extension, INamespaceAdjusterOptions options)
         {
@@ -28,6 +28,5 @@ namespace NamespaceFixer.NamespaceBuilder
 
             return rslt;
         }
-
     }
 }

@@ -52,12 +52,7 @@ namespace NamespaceFixer.InnerPathFinder
             var regex = new Regex(hiddenFilesRegex);
             var extraFiles = Directory.GetParent(itemPath).GetFiles().Where(f => regex.IsMatch(f.Name));
 
-            if (extraFiles.Any())
-            {
-                return extraFiles.Where(f => f.FullName != file.FullName).Select(f => f.FullName);
-            }
-
-            return new List<string>();
+            return extraFiles.Any() ? extraFiles.Where(f => f.FullName != file.FullName).Select(f => f.FullName) : new List<string>();
         }
 
         private IEnumerable<string> GetPathsForDirectory(string item)

@@ -1,9 +1,11 @@
 ﻿namespace NamespaceFixer
 {
-    internal interface INamespaceAdjusterOptions
+    public interface INamespaceAdjusterOptions
     {
         string NamespaceFormat { get; }
 
         string FileExtensionsToIgnore { get; }
+
+        string FoldersToIgnore { get; set; }
     }
 }

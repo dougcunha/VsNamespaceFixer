@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NamespaceFixer", "NamespaceFixer\NamespaceFixer.csproj", "{6C5D3AE5-03E4-4AF8-A02D-B15985E46101}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VsNamespaceFixerTests", "VsNamespaceFixerTests\VsNamespaceFixerTests.csproj", "{5CD1C9D5-D5DE-4A43-9AC1-8144ED7D7A53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6C5D3AE5-03E4-4AF8-A02D-B15985E46101}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C5D3AE5-03E4-4AF8-A02D-B15985E46101}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C5D3AE5-03E4-4AF8-A02D-B15985E46101}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CD1C9D5-D5DE-4A43-9AC1-8144ED7D7A53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CD1C9D5-D5DE-4A43-9AC1-8144ED7D7A53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CD1C9D5-D5DE-4A43-9AC1-8144ED7D7A53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CD1C9D5-D5DE-4A43-9AC1-8144ED7D7A53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

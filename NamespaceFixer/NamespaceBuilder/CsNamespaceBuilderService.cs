@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace NamespaceFixer.NamespaceBuilder
 {
-    internal class CsNamespaceBuilderService : NamespaceBuilderService
+    public class CsNamespaceBuilderService : NamespaceBuilderService
     {
         protected override string NamespaceStartLimiter => "{" + NewLine;
         protected override string NamespaceEndLimiter => "}";
@@ -27,7 +27,6 @@ namespace NamespaceFixer.NamespaceBuilder
             return "namespace " + desiredNamespace;
         }
 
-
         internal override string BuildNamespaceAccordingToOptions(
           string solutionName,
           string projectName,
@@ -38,17 +37,17 @@ namespace NamespaceFixer.NamespaceBuilder
         {
             var newNamespace = GetOptions().NamespaceFormat;
 
-            Action<string, string> replaceWithFormat = (namespaceSection, sectionValue) =>
+            void replaceWithFormat(string namespaceSection, string sectionValue)
             {
                 newNamespace = newNamespace.Replace(namespaceSection, "/" + sectionValue);
-            };
+            }
 
-            replaceWithFormat(NamespaceSections.SolutionName, solutionName);
-            replaceWithFormat(NamespaceSections.ProjectName, projectName);
-            replaceWithFormat(NamespaceSections.ProjectRootNamespace, projectRootNamespace);
-            replaceWithFormat(NamespaceSections.ProjectToSolutionPhysicalPath, projectToSolutionPhysicalPath);
-            replaceWithFormat(NamespaceSections.ProjectToSolutionVirtualPath, projectToSolutionVirtualPath);
-            replaceWithFormat(NamespaceSections.FileToProjectPath, fileToProjectPath);
+            replaceWithFormat(NamespaceSections.SOLUTION_NAME, solutionName);
+            replaceWithFormat(NamespaceSections.PROJECT_NAME, projectName);
+            replaceWithFormat(NamespaceSections.PROJECT_ROOT_NAMESPACE, projectRootNamespace);
+            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_PHYSICAL_PATH, projectToSolutionPhysicalPath);
+            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_VIRTUAL_PATH, projectToSolutionVirtualPath);
+            replaceWithFormat(NamespaceSections.FILE_TO_PROJECT_PATH, fileToProjectPath);
 
             return newNamespace;
         }

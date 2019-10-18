@@ -16,7 +16,6 @@ namespace NamespaceFixer.Core
     /// </summary>
     internal class VsServiceInfo
     {
-
         private IVsSolutionBuildManager _vsSolutionBuildManager = null;
         private IVsMonitorSelection _vsMonitorSelection = null;
 
@@ -40,9 +39,7 @@ namespace NamespaceFixer.Core
         /// <returns></returns>
         public IVsSolutionBuildManager GetVsSolutionBuildManager()
         {
-            if (_vsSolutionBuildManager == null)
-                _vsSolutionBuildManager = PackageHelper.GetService<IVsSolutionBuildManager>(typeof(SVsSolutionBuildManager));
-            return _vsSolutionBuildManager;
+            return _vsSolutionBuildManager ?? (_vsSolutionBuildManager = PackageHelper.GetService<IVsSolutionBuildManager>(typeof(SVsSolutionBuildManager)));
         }
 
         /// <summary>
@@ -51,9 +48,7 @@ namespace NamespaceFixer.Core
         /// <returns></returns>
         public IVsMonitorSelection GetVsMonitorSelection()
         {
-            if (_vsMonitorSelection == null)
-                _vsMonitorSelection = PackageHelper.GetService<IVsMonitorSelection>(typeof(SVsShellMonitorSelection));
-            return _vsMonitorSelection;
+            return _vsMonitorSelection ?? (_vsMonitorSelection = PackageHelper.GetService<IVsMonitorSelection>(typeof(SVsShellMonitorSelection)));
         }
 
         /// <summary>
@@ -121,7 +116,7 @@ namespace NamespaceFixer.Core
 
                     if (itemId == (uint)VSConstants.VSITEMID.Selection && multiSelect != null)
                     {
-                        success = PackageHelper.Success(multiSelect.GetSelectionInfo(out uint itemCount, out int fSingleHierarchy));
+                        success = PackageHelper.Success(multiSelect.GetSelectionInfo(out uint itemCount, out _));
 
                         if (success)
                         {
@@ -155,6 +150,5 @@ namespace NamespaceFixer.Core
             }
             return rslt;
         }
-
     }
 }

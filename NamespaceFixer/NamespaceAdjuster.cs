@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
 using NamespaceFixer.Core;
 using NamespaceFixer.NamespaceBuilder;
 using System;
@@ -23,7 +24,7 @@ namespace NamespaceFixer
 
         public static NamespaceAdjuster Instance { get; private set; }
 
-        internal IServiceProvider ServiceProvider => (Package)_package;
+        internal System.IServiceProvider ServiceProvider => (Package)_package;
 
         public static void Initialize(NamespaceAdjusterPackage package)
         {
@@ -33,9 +34,7 @@ namespace NamespaceFixer
 
         public void Initialize()
         {
-            var commandService = ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-
-            if (commandService != null)
+            if (ServiceProvider.GetService(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
             {
                 var menuCommandID = new CommandID(Guids.NamespaceFixerCmdSet, Ids.CmdIdAdjustNamespace);
                 var menuItem = new OleMenuCommand(MenuItemCallback, menuCommandID);
@@ -69,7 +68,7 @@ namespace NamespaceFixer
 
                 var allPaths = _serviceInfo.InnerPathFinder.GetAllInnerPaths(selectedItemPaths);
 
-                if (!allPaths.Any())
+                if (allPaths.Length == 0)
                 {
                     return;
                 }
@@ -94,7 +93,7 @@ namespace NamespaceFixer
                 return;
             }
 
-            var encoding = NamespaceFixer.Extensions.PathExtensions.GetEncoding(filePath);
+            var encoding = Extensions.PathExtensions.GetEncoding(filePath);
 
             var fileContent = File.ReadAllText(filePath, encoding);
 

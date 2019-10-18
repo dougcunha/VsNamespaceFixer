@@ -27,7 +27,6 @@ namespace NamespaceFixer.NamespaceBuilder
             return "Namespace " + desiredNamespace;
         }
 
-
         internal override string BuildNamespaceAccordingToOptions(
             string solutionName,
             string projectName,
@@ -38,17 +37,17 @@ namespace NamespaceFixer.NamespaceBuilder
         {
             var newNamespace = GetOptions().NamespaceFormat;
 
-            Action<string, string> replaceWithFormat = (namespaceSection, sectionValue) =>
+            void replaceWithFormat(string namespaceSection, string sectionValue)
             {
                 newNamespace = newNamespace.Replace(namespaceSection, "/" + sectionValue);
-            };
+            }
 
-            replaceWithFormat(NamespaceSections.SolutionName, String.Empty);
-            replaceWithFormat(NamespaceSections.ProjectName, String.Empty);
-            replaceWithFormat(NamespaceSections.ProjectRootNamespace, String.Empty);
-            replaceWithFormat(NamespaceSections.ProjectToSolutionPhysicalPath, String.Empty);
-            replaceWithFormat(NamespaceSections.ProjectToSolutionVirtualPath, String.Empty);
-            replaceWithFormat(NamespaceSections.FileToProjectPath, fileToProjectPath);
+            replaceWithFormat(NamespaceSections.SOLUTION_NAME, String.Empty);
+            replaceWithFormat(NamespaceSections.PROJECT_NAME, String.Empty);
+            replaceWithFormat(NamespaceSections.PROJECT_ROOT_NAMESPACE, String.Empty);
+            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_PHYSICAL_PATH, String.Empty);
+            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_VIRTUAL_PATH, String.Empty);
+            replaceWithFormat(NamespaceSections.FILE_TO_PROJECT_PATH, fileToProjectPath);
 
             return newNamespace;
         }
