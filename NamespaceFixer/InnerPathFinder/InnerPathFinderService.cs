@@ -1,7 +1,6 @@
 ﻿using NamespaceFixer.Extensions;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Extensions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -14,34 +13,25 @@ namespace NamespaceFixer.InnerPathFinder
             var paths = new List<string>();
 
             foreach (var item in selectedItemPaths)
-            {
                 if (item.IsProjectFile())
-                {
                     paths.AddRange(GetInnerPathsForProject(item));
-                }
                 else
                 if (Directory.Exists(item))
-                {
                     paths.AddRange(GetPathsForDirectory(item));
-                }
                 else
-                {
                     paths.AddRange(GetItemWithRelatedPaths(item));
-                }
-            }
 
             return paths.ToArray();
         }
 
         private string GetHiddenFilesRegex(FileInfo file)
-        {
-            return file.NameWithoutExtension() + "\\.\\w+\\.(cs|vb)";
-        }
+            => file.NameWithoutExtension() + "\\.\\w+\\.(cs|vb)";
 
         private IEnumerable<string> GetItemWithRelatedPaths(string itemPath)
         {
             var paths = HiddenFilesFor(itemPath).ToList();
             paths.Add(itemPath);
+
             return paths;
         }
 
@@ -50,7 +40,7 @@ namespace NamespaceFixer.InnerPathFinder
             var file = new FileInfo(itemPath);
             var hiddenFilesRegex = GetHiddenFilesRegex(file);
             var regex = new Regex(hiddenFilesRegex);
-            var extraFiles = Directory.GetParent(itemPath).GetFiles().Where(f => regex.IsMatch(f.Name));
+            var extraFiles = Directory.GetParent(itemPath).GetFiles().Where(f => regex.IsMatch(f.Name)).ToList();
 
             return extraFiles.Any() ? extraFiles.Where(f => f.FullName != file.FullName).Select(f => f.FullName) : new List<string>();
         }
@@ -59,14 +49,12 @@ namespace NamespaceFixer.InnerPathFinder
         {
             var paths = Directory.EnumerateFiles(item).ToList();
 
-            paths.AddRange(GetAllInnerPaths(Directory.EnumerateDirectories((string)item).ToArray()));
+            paths.AddRange(GetAllInnerPaths(Directory.EnumerateDirectories(item).ToArray()));
 
             return paths;
         }
 
         private string[] GetInnerPathsForProject(string item)
-        {
-            return GetAllInnerPaths(new string[] { Directory.GetParent(item).FullName });
-        }
+            => GetAllInnerPaths(new[] { Directory.GetParent(item).FullName });
     }
 }

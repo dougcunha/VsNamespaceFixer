@@ -1,9 +1,12 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using EnvDTE;
+using Microsoft.VisualStudio.Shell;
 using NamespaceFixer.Core;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Threading;
 
 namespace NamespaceFixer
 {
@@ -25,9 +28,9 @@ namespace NamespaceFixer
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("#110", "#112", Statics.PackageVersion, IconResourceID = 400)] // Info on this package for Help/About
+    [InstalledProductRegistration("#110", "#112", Statics.PACKAGE_VERSION, IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(Guids.NamespaceFixerPackage)]
+    [Guid(Guids.NAMESPACE_FIXER_PACKAGE)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideOptionPage(typeof(OptionPage), "Namespace Fixer options", "Use default project namespace", 0, 0, true)]
     //[ProvideUIContextRule(Guids.UiContextSupportedFiles, TODO
@@ -42,18 +45,30 @@ namespace NamespaceFixer
         protected override System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             NamespaceAdjuster.Initialize(this);
-            base.Initialize();
+            Initialize();
 
             return base.InitializeAsync(cancellationToken, progress);
         }
 
-        internal OptionPage GetOptionPage()
+        /// <summary>
+        /// Retrieves the file information for the current solution file.
+        /// </summary>
+        /// <returns>the file information for the current solution file</returns>
+        internal FileInfo GetSolutionFile()
         {
-            if (_options == null)
-            {
-                _options = (OptionPage)GetDialogPage(typeof(OptionPage));
-            }
-            return _options;
+            // verify thread access
+            Dispatcher.CurrentDispatcher.VerifyAccess();
+
+            // retrieve DTE as service
+            if (!(GetService(typeof(DTE)) is DTE dte))
+            // failed to retrieve service
+                throw new InvalidOperationException("Could not receive DTE service.");
+
+            // create file information
+            return new FileInfo(dte.Solution.FullName);
         }
+
+        internal OptionPage GetOptionPage()
+            => _options ??= (OptionPage)GetDialogPage(typeof(OptionPage));
     }
 }

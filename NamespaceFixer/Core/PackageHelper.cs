@@ -3,6 +3,7 @@ using System;
 
 namespace NamespaceFixer.Core
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     internal class PackageHelper
     {
         /// <summary>
@@ -16,9 +17,7 @@ namespace NamespaceFixer.Core
             IServiceProvider provider = null;
 
             if (NamespaceAdjuster.Instance != null)
-            {
                 provider = NamespaceAdjuster.Instance.ServiceProvider;
-            }
 
             return GetService<T>(provider, type);
         }
@@ -32,15 +31,15 @@ namespace NamespaceFixer.Core
         /// <returns></returns>
         public static T GetService<T>(IServiceProvider provider, Type type)
         {
-            T rslt = default(T);
+            T rslt = default;
 
-            if (provider != null && type != null)
-            {
-                object service = provider.GetService(type);
+            if (provider == null || type == null)
+                return rslt;
 
-                if (service != null && service is T)
-                    rslt = (T)service;
-            }
+            object service = provider.GetService(type);
+
+            if (service is T service1)
+                rslt = service1;
 
             return rslt;
         }
@@ -51,8 +50,6 @@ namespace NamespaceFixer.Core
         /// <param name="requestRslt"></param>
         /// <returns></returns>
         public static bool Success(int requestRslt)
-        {
-            return (requestRslt == VSConstants.S_OK);
-        }
+            => requestRslt == VSConstants.S_OK;
     }
 }

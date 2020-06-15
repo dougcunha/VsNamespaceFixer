@@ -19,17 +19,17 @@ The sections that can be used are:
     • " + NamespaceSections.FILE_TO_PROJECT_PATH + @": the physical path from the file adjusting the path of to the project directory.
 ")]
         public string NamespaceFormat { get; set; } =
-            NamespaceSections.PROJECT_NAME +
+            NamespaceSections.PROJECT_ROOT_NAMESPACE + //PROJECT_NAME
             NamespaceSections.FILE_TO_PROJECT_PATH;
 
         [Category("Options")]
         [DisplayName("Extensions of files that will be ignored")]
         [Description("Extensions of files that will be ignored when adjusting namespaces. Please, use ';' to split if more than one.")]
-        public string FileExtensionsToIgnore { get; set; } = string.Empty;
+        public string FileExtensionsToIgnore { get; set; } = "resx;cshtml";
 
         [Category("Options")]
         [DisplayName("Folders that will be ignored")]
         [Description("Folders that will be ignored when adjusting namespaces. Please, use ';' to split if more than one.")]
-        public string FoldersToIgnore { get; set; } = string.Empty;
+        public string FoldersToIgnore { get; set; } = "Source";
     }
 }

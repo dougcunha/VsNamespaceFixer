@@ -1,7 +1,7 @@
-﻿using EnvDTE;
+﻿using System;
+using System.Linq;
+using EnvDTE;
 using Microsoft.VisualStudio.Shell;
-using System;
-using System.Collections.Generic;
 
 namespace NamespaceFixer.SolutionSelection
 {
@@ -10,36 +10,29 @@ namespace NamespaceFixer.SolutionSelection
         public string[] GetSelectedItemsPaths()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
             var selectedItems = GetSelectedItems();
-            if (selectedItems == null)
-            {
-                return new string[] { };
-            }
 
-            var paths = new List<string>();
-            foreach (UIHierarchyItem selItem in selectedItems)
-            {
-                var prjItem = (ProjectItem)selItem.Object;
-                var filePath = prjItem.Properties.Item("FullPath").Value.ToString();
-                paths.Add(filePath);
-            }
-
-            return paths.ToArray();
+            return selectedItems == null
+                ? Array.Empty<string>()
+                : (from UIHierarchyItem selItem in selectedItems
+                    select (ProjectItem)selItem.Object into prjItem
+                    select prjItem.Properties.Item("FullPath")
+                        .Value.ToString()).ToArray();
         }
 
         private Array GetSelectedItems()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            // ReSharper disable once InconsistentNaming
             var _applicationObject = GetDTE2();
+
             var uih = _applicationObject.ToolWindows.SolutionExplorer;
+
             return (Array)uih.SelectedItems;
         }
 
         private EnvDTE80.DTE2 GetDTE2()
-        {
-            return Package.GetGlobalService(typeof(DTE)) as EnvDTE80.DTE2;
-        }
+            => Package.GetGlobalService(typeof(DTE)) as EnvDTE80.DTE2;
     }
 }

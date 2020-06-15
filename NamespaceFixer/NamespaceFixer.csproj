@@ -9,7 +9,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
@@ -47,6 +47,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -55,12 +56,15 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Core\VsServiceInfo.cs" />
     <Compile Include="Extensions\DirectoryExtensions.cs" />
     <Compile Include="Extensions\FileExtensions.cs" />
     <Compile Include="Core\MsBuildEvaluationHelper.cs" />
+    <Compile Include="NamespaceBuilder\DummyNamespaceBuilderService.cs" />
+    <Compile Include="NamespaceBuilder\LogicNamespaceBuilderService.cs" />
     <Compile Include="NamespaceBuilder\VbNamespaceBuilderService.cs" />
     <Compile Include="NamespaceBuilder\CsNamespaceBuilderService.cs" />
     <Compile Include="Core\PackageHelper.cs" />
@@ -74,6 +78,7 @@
     <Compile Include="NamespaceBuilder\INamespaceBuilder.cs" />
     <Compile Include="NamespaceBuilder\NamespaceBuilderService.cs" />
     <Compile Include="NamespaceBuilder\NamespaceSections.cs" />
+    <Compile Include="NamespaceBuilder\XamlNamespaceBuilderService.cs" />
     <Compile Include="OptionPage.cs">
       <SubType>Component</SubType>
     </Compile>

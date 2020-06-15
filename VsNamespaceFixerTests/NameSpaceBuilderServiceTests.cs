@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using NamespaceFixer;
 using NamespaceFixer.NamespaceBuilder;
@@ -11,9 +10,12 @@ namespace VsNamespaceFixerTests
         [Fact]
         public void ShouldGetNamespaceIgnoringFolders()
         {
-            var options = new Options();
-            options.NamespaceFormat = "{projectName}{fileToProjectPath}";
-            options.FoldersToIgnore = "source;teste;opa";
+            var options = new Options
+            {
+                NamespaceFormat = "{projectName}{fileToProjectPath}",
+                FoldersToIgnore = "source;teste;opa"
+            };
+
             var service = new CsNamespaceBuilderService(options);
 
             var solutionFile = new FileInfo(@"D:\projetos\ncr-d-connect\NCR Ifood.sln");
@@ -28,7 +30,8 @@ namespace VsNamespaceFixerTests
 
     internal class Options : INamespaceAdjusterOptions
     {
-        public string NamespaceFormat { get; set;  }
+        public string NamespaceFormat { get; set; }
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
         public string FileExtensionsToIgnore { get; }
         public string FoldersToIgnore { get; set; }
     }

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace NamespaceFixer.NamespaceBuilder
 {
-    internal class VbNamespaceBuilderService : NamespaceBuilderService
+    internal class VbNamespaceBuilderService : LogicNamespaceBuilderService
     {
         protected override string NamespaceStartLimiter => string.Empty;
         protected override string NamespaceEndLimiter => "End Namespace";
@@ -12,22 +11,15 @@ namespace NamespaceFixer.NamespaceBuilder
         {
         }
 
-        protected override Match FindNamespaceMatch(string fileContent)
-        {
-            return Regex.Match(fileContent, @"[\r\n|\r|\n]?Namespace\s(.+)[\r\n|\r|\n]");
-        }
+        protected override Match FindNamespaceMatch(string fileContent) => Regex.Match(fileContent, @"[\r\n|\r|\n]?Namespace\s(.+)[\r\n|\r|\n]");
 
-        protected override MatchCollection FindUsingMatches(string fileContent)
-        {
-            return Regex.Matches(fileContent, @"[\r\n|\r|\n]?Imports\s(.+)[\r\n|\r|\n]");
-        }
+        protected override MatchCollection FindUsingMatches(string fileContent) =>
+            Regex.Matches(fileContent, @"[\r\n|\r|\n]?Imports\s(.+)[\r\n|\r|\n]");
 
-        protected override string BuildNamespaceLine(string desiredNamespace)
-        {
-            return "Namespace " + desiredNamespace;
-        }
+        protected override string BuildNamespaceLine(string desiredNamespace) =>
+            "Namespace " + desiredNamespace;
 
-        internal override string BuildNamespaceAccordingToOptions(
+        protected override string BuildNamespaceAccordingToOptions(
             string solutionName,
             string projectName,
             string projectRootNamespace,
@@ -37,17 +29,17 @@ namespace NamespaceFixer.NamespaceBuilder
         {
             var newNamespace = GetOptions().NamespaceFormat;
 
-            void replaceWithFormat(string namespaceSection, string sectionValue)
+            void ReplaceWithFormat(string namespaceSection, string sectionValue)
             {
                 newNamespace = newNamespace.Replace(namespaceSection, "/" + sectionValue);
             }
 
-            replaceWithFormat(NamespaceSections.SOLUTION_NAME, String.Empty);
-            replaceWithFormat(NamespaceSections.PROJECT_NAME, String.Empty);
-            replaceWithFormat(NamespaceSections.PROJECT_ROOT_NAMESPACE, String.Empty);
-            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_PHYSICAL_PATH, String.Empty);
-            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_VIRTUAL_PATH, String.Empty);
-            replaceWithFormat(NamespaceSections.FILE_TO_PROJECT_PATH, fileToProjectPath);
+            ReplaceWithFormat(NamespaceSections.SOLUTION_NAME, string.Empty);
+            ReplaceWithFormat(NamespaceSections.PROJECT_NAME, string.Empty);
+            ReplaceWithFormat(NamespaceSections.PROJECT_ROOT_NAMESPACE, string.Empty);
+            ReplaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_PHYSICAL_PATH, string.Empty);
+            ReplaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_VIRTUAL_PATH, string.Empty);
+            ReplaceWithFormat(NamespaceSections.FILE_TO_PROJECT_PATH, fileToProjectPath);
 
             return newNamespace;
         }

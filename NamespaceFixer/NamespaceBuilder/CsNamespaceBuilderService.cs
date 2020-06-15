@@ -1,9 +1,8 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace NamespaceFixer.NamespaceBuilder
 {
-    public class CsNamespaceBuilderService : NamespaceBuilderService
+    internal class CsNamespaceBuilderService : LogicNamespaceBuilderService
     {
         protected override string NamespaceStartLimiter => "{" + NewLine;
         protected override string NamespaceEndLimiter => "}";
@@ -13,21 +12,14 @@ namespace NamespaceFixer.NamespaceBuilder
         }
 
         protected override Match FindNamespaceMatch(string fileContent)
-        {
-            return Regex.Match(fileContent, @"[\r\n|\r|\n]?namespace\s(.+)[\r\n|\r|\n]+{");
-        }
+            => Regex.Match(fileContent, @"[\r\n|\r|\n]?namespace\s(.+)[\r\n|\r|\n]*{");
 
         protected override MatchCollection FindUsingMatches(string fileContent)
-        {
-            return Regex.Matches(fileContent, @"\n?using\s(.+);");
-        }
+            => Regex.Matches(fileContent, @"\n?using\s(.+);");
 
-        protected override string BuildNamespaceLine(string desiredNamespace)
-        {
-            return "namespace " + desiredNamespace;
-        }
+        protected override string BuildNamespaceLine(string desiredNamespace) => "namespace " + desiredNamespace;
 
-        internal override string BuildNamespaceAccordingToOptions(
+        protected override string BuildNamespaceAccordingToOptions(
           string solutionName,
           string projectName,
           string projectRootNamespace,
@@ -37,17 +29,17 @@ namespace NamespaceFixer.NamespaceBuilder
         {
             var newNamespace = GetOptions().NamespaceFormat;
 
-            void replaceWithFormat(string namespaceSection, string sectionValue)
+            void ReplaceWithFormat(string namespaceSection, string sectionValue)
             {
                 newNamespace = newNamespace.Replace(namespaceSection, "/" + sectionValue);
             }
 
-            replaceWithFormat(NamespaceSections.SOLUTION_NAME, solutionName);
-            replaceWithFormat(NamespaceSections.PROJECT_NAME, projectName);
-            replaceWithFormat(NamespaceSections.PROJECT_ROOT_NAMESPACE, projectRootNamespace);
-            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_PHYSICAL_PATH, projectToSolutionPhysicalPath);
-            replaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_VIRTUAL_PATH, projectToSolutionVirtualPath);
-            replaceWithFormat(NamespaceSections.FILE_TO_PROJECT_PATH, fileToProjectPath);
+            ReplaceWithFormat(NamespaceSections.SOLUTION_NAME, solutionName);
+            ReplaceWithFormat(NamespaceSections.PROJECT_NAME, projectName);
+            ReplaceWithFormat(NamespaceSections.PROJECT_ROOT_NAMESPACE, projectRootNamespace);
+            ReplaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_PHYSICAL_PATH, projectToSolutionPhysicalPath);
+            ReplaceWithFormat(NamespaceSections.PROJECT_TO_SOLUTION_VIRTUAL_PATH, projectToSolutionVirtualPath);
+            ReplaceWithFormat(NamespaceSections.FILE_TO_PROJECT_PATH, fileToProjectPath);
 
             return newNamespace;
         }

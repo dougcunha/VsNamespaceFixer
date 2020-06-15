@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using NamespaceFixer.Core;
 using NamespaceFixer.NamespaceBuilder;
 using System;
@@ -11,8 +10,6 @@ namespace NamespaceFixer
 {
     internal sealed class NamespaceAdjuster
     {
-        private INamespaceBuilder _namespaceBuilder;
-
         private readonly NamespaceAdjusterPackage _package;
         private readonly VsServiceInfo _serviceInfo;
 
@@ -24,7 +21,9 @@ namespace NamespaceFixer
 
         public static NamespaceAdjuster Instance { get; private set; }
 
-        internal System.IServiceProvider ServiceProvider => (Package)_package;
+        internal IServiceProvider ServiceProvider
+        // ReSharper disable once RedundantCast
+            => (Package)_package;
 
         public static void Initialize(NamespaceAdjusterPackage package)
         {
@@ -34,14 +33,14 @@ namespace NamespaceFixer
 
         public void Initialize()
         {
-            if (ServiceProvider.GetService(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
-            {
-                var menuCommandID = new CommandID(Guids.NamespaceFixerCmdSet, Ids.CmdIdAdjustNamespace);
-                var menuItem = new OleMenuCommand(MenuItemCallback, menuCommandID);
-                //menuItem.BeforeQueryStatus += ButtonQueryStatus; TODO
+            if (!(ServiceProvider.GetService(typeof(IMenuCommandService)) is OleMenuCommandService commandService))
+                return;
 
-                commandService.AddCommand(menuItem);
-            }
+            var menuCommandId = new CommandID(Guids.NamespaceFixerCmdSet, Ids.CMD_ID_ADJUST_NAMESPACE);
+            var menuItem = new OleMenuCommand(MenuItemCallback, menuCommandId);
+            //menuItem.BeforeQueryStatus += ButtonQueryStatus; TODO
+
+            commandService.AddCommand(menuItem);
         }
 
         // TODO
@@ -69,16 +68,16 @@ namespace NamespaceFixer
                 var allPaths = _serviceInfo.InnerPathFinder.GetAllInnerPaths(selectedItemPaths);
 
                 if (allPaths.Length == 0)
-                {
                     return;
-                }
 
+                var solutionFile = _package.GetSolutionFile();
                 var projectFile = ProjectHelper.GetProjectFilePath(allPaths[0]);
-                var solutionFile = ProjectHelper.GetSolutionFilePath(_serviceInfo, projectFile.Directory.FullName);
 
-                _namespaceBuilder = NamespaceBuilderFactory.CreateNamespaceBuilderService(projectFile.Extension, _package.GetOptionPage());
-
-                allPaths.ToList().ForEach(f => FixNamespace(f, solutionFile, projectFile));
+                foreach (var filePath in allPaths.ToList())
+                {
+                    var builder = NamespaceBuilderFactory.CreateNamespaceBuilderService(projectFile.Extension, _package.GetOptionPage(), filePath);
+                    FixNamespace(builder, filePath, solutionFile, projectFile);
+                }
             }
             finally
             {
@@ -86,25 +85,21 @@ namespace NamespaceFixer
             }
         }
 
-        private void FixNamespace(string filePath, FileInfo solutionFile, FileInfo projectFile)
+        private void FixNamespace(INamespaceBuilder namespaceBuilder, string filePath, FileInfo solutionFile, FileInfo projectFile)
         {
             if (!File.Exists(filePath) || IgnoreFile(filePath))
-            {
                 return;
-            }
 
             var encoding = Extensions.PathExtensions.GetEncoding(filePath);
 
             var fileContent = File.ReadAllText(filePath, encoding);
 
-            var desiredNamespace = _namespaceBuilder.GetNamespace(filePath, solutionFile, projectFile);
+            var desiredNamespace = namespaceBuilder.GetNamespace(filePath, solutionFile, projectFile);
 
-            var updated = _namespaceBuilder.UpdateFile(ref fileContent, desiredNamespace);
+            var updated = namespaceBuilder.UpdateFile(ref fileContent, desiredNamespace);
 
             if (updated)
-            {
                 File.WriteAllText(filePath, fileContent, encoding);
-            }
         }
 
         private bool IgnoreFile(string path)
@@ -115,10 +110,10 @@ namespace NamespaceFixer
         }
 
         private string[] ExtensionsToIgnore => _package.GetOptionPage()
-                    .FileExtensionsToIgnore
-                    .Split(';')
-                    .Select(ignoredExtension => ignoredExtension.Replace(".", string.Empty).Trim())
-                    .Where(ext => !string.IsNullOrEmpty(ext))
-                    .ToArray();
+            .FileExtensionsToIgnore
+            .Split(';')
+            .Select(ignoredExtension => ignoredExtension.Replace(".", string.Empty).Trim())
+            .Where(ext => !string.IsNullOrEmpty(ext))
+            .ToArray();
     }
 }

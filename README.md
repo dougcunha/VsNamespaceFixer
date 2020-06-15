@@ -1,7 +1,7 @@
 # Visual Studio Namespace Fixer
 An very simple and light extension, compatible with VS 2015, VS 2017 & VS 2019.
 
-It only works for C#-like and VB.NET namespace format.
+It works for C#-like and VB.NET namespace format. Now it supports XAML files as well!
 
 Adds an 'Adjust namespace' option on your Solution Explorer contextual menu. It will only appear for files (one or more) and folders (one or more) for the same project. Just right-click them and you will see how it works.
 
@@ -12,7 +12,7 @@ There are a couple of options you can choose from (can be found at Tools > Optio
 * `{solutionName}`: just the solution file name.
 * `{projectName}`: just the project file name.
 * `{projectRootNamespace}`: the 'Default namespace' specified in the properties of the project.
-* `{projectToSolutionPhisicalPath}`: the path from the project file directory to the solution file directory.
+* `{projectToSolutionPhysicalPath}`: the path from the project file directory to the solution file directory.
 * `{fileToProjectPath}`: the physical path from the file adjusting the path of to the project directory.
 
 The default namespace format is specified as: `{projectName}{fileToProjectPath}`.
@@ -29,3 +29,6 @@ Special thanks go to the pull-requesters:
 * [@spottedmahn](https://github.com/spottedmahn)
 * [@mniak](https://github.com/mniak)
 * [@DawidB](https://github.com/DawidB)
+* [@angelobreuer](https://github.com/angelobreuer)
+* [@aquilla12](https://github.com/aquilla12)
+* [@Aviuz](https://github.com/Aviuz)

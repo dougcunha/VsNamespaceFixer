@@ -8,26 +8,22 @@ namespace NamespaceFixer.Core
 {
     internal class VsItemInfo
     {
-
-        private readonly IVsHierarchy _VsHierarchy;
-
-        private string _Name = null;
-        private Project _MsBuildProject = null;
+        private readonly IVsHierarchy _vsHierarchy;
+        private string _name;
+        private Project _msBuildProject;
 
         public VsItemInfo(IVsHierarchy pVsHierarchy)
-        {
-            _VsHierarchy = pVsHierarchy;
-        }
+            => _vsHierarchy = pVsHierarchy;
 
         public IVsHierarchy GetVsHierarchy()
-        {
-            return _VsHierarchy;
-        }
+            => _vsHierarchy;
 
         public IVsProject GetVsProject()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            return _VsHierarchy is IVsProject ? (IVsProject)_VsHierarchy : null;
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            return _vsHierarchy as IVsProject;
         }
 
         public string GetProjectFullPath()
@@ -37,8 +33,7 @@ namespace NamespaceFixer.Core
             string fullPath = null;
             IVsProject project = GetVsProject();
 
-            if (project != null)
-                project.GetMkDocument(VSConstants.VSITEMID_ROOT, out fullPath);
+            project?.GetMkDocument(VSConstants.VSITEMID_ROOT, out fullPath);
 
             return fullPath;
         }
@@ -46,17 +41,15 @@ namespace NamespaceFixer.Core
         public string GetSolutionFullPath()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            return GetMsBuildProjectValue(MsBuildEvaluationHelper.SolutionPathProperty);
+
+            return GetMsBuildProjectValue(MsBuildEvaluationHelper.SOLUTION_PATH_PROPERTY);
         }
 
         public string GetName()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (_Name == null)
-                _Name = GetName(_VsHierarchy, "no-name");
-
-            return _Name;
+            return _name ??= GetName(_vsHierarchy, "no-name");
         }
 
         private string GetMsBuildProjectValue(string key)
@@ -76,31 +69,31 @@ namespace NamespaceFixer.Core
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (_MsBuildProject == null)
-            {
-                string fullPath = GetProjectFullPath();
+            if (_msBuildProject != null)
+                return _msBuildProject;
 
-                if (fullPath != null)
-                    _MsBuildProject = MsBuildEvaluationHelper.GetProject(fullPath);
-            }
+            var fullPath = GetProjectFullPath();
 
-            return _MsBuildProject;
+            if (fullPath != null)
+                _msBuildProject = MsBuildEvaluationHelper.GetProject(fullPath);
+
+            return _msBuildProject;
         }
 
         private static string GetName(IVsHierarchy vsHierarchy, string @default)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
             object value = GetProperty(vsHierarchy, __VSHPROPID.VSHPROPID_Name, Convert.ToUInt32(VSConstants.VSITEMID.Root));
-            return value != null ? value.ToString() : @default;
+
+            return value?.ToString() ?? @default;
         }
 
         private static object GetProperty(IVsHierarchy vsHierarchy, __VSHPROPID key, uint vsItemId)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            object value = null;
-            bool success = PackageHelper.Success(vsHierarchy.GetProperty(vsItemId, Convert.ToInt32(key), out value));
+            bool success = PackageHelper.Success(vsHierarchy.GetProperty(vsItemId, Convert.ToInt32(key), out var value));
+
             return success ? value : null;
         }
     }
